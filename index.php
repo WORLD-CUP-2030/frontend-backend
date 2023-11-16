@@ -64,15 +64,18 @@ $groupResult = $conn->query($groupQuery);
     </form>
 
     <?php
+    $groupsName=[];
+    $countGroupe=0;
     if ($groupResult->num_rows > 0) {
         // Output data for each grp
         echo "<div class='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10'>";
         while ($groupRow = $groupResult->fetch_assoc()) {
+            array_push($groupsName,$groupRow["GroupName"]);
             echo "
             <div class='flex flex-col max-w-2xl border p-4'>
-                <button class='border h-8 bg-green-600 pl-5 font-bold text-white text-sm text-start' onclick=\"window.dialog.showModal();\">Group " . $groupRow["GroupName"] . ":</button>
-                
+                <button class='border h-8 bg-green-600 pl-5 font-bold text-white text-sm text-start' onclick=\"window.dialog".$countGroupe.".showModal();\">Group " . $groupRow["GroupName"] . ":</button>
                 <div class='flex flex-row gap-2 flex-wrap'>";
+                $countGroupe++;
 
             // Query to get teams for the current group
             $teamQuery = "SELECT Name, Country, drapeau FROM team WHERE Name = '" . $groupRow["GroupName"] . "'";
@@ -95,22 +98,28 @@ $groupResult = $conn->query($groupQuery);
             </div>";
         }
         // echo "</div>";
-        echo "
-    <dialog id='dialog' class='p-4 md:p-8 bg-white max-w-40vw pt-8 rounded-2xl border-0 shadow-md'>
-        <button onclick=\"window.dialog.close();\" aria-label=\"close\" class='filter-grayscale border-none bg-none absolute top-5 right-5 transition-transform transition-filter ease duration-300 cursor-pointer transform-origin-center hover:filter-grayscale-0 hover:transform-scale-110'>❌</button>
-        <h2>TEAM Information</h2>";
-
-        if ($teamRow !== null) {
+        for ($i=0; $i < 8; $i++) { 
             echo "
-            <div>
-                <h3>{$teamRow['Capital']}</h3>
-                <p>Location: {$teamRow['Continent']}</p>
-            </div>";
-        } else {
-            echo "<p>No TEAM data available.</p>";
-        }
+    <dialog id='dialog".$i."' class='p-4 md:p-8 bg-white max-w-40vw pt-8 rounded-2xl border-0 shadow-md'>
+        <button onclick=\"window.dialog".$i."'.close();\" aria-label=\"close\" class='filter-grayscale border-none bg-none absolute top-5 right-5 transition-transform transition-filter ease duration-300 cursor-pointer transform-origin-center hover:filter-grayscale-0 hover:transform-scale-110'>❌</button>
+        <h2>TEAM Information</h2>";
+            
+        $teamQuery = "SELECT * FROM team WHERE Name = '" . $groupsName[$i] . "'";
+        $teamResult = $conn->query($teamQuery);
+        
+        while ($teamRow = $teamResult->fetch_assoc()) {
+               
+                $country = trim($teamRow["Country"]);
+                $highlightClass = (strcasecmp($country, $searchTerm) === 0) ? 'bg-yellow-300' : ''; 
+                echo "<div>
+                            <h3>{$teamRow['Capital']}</h3>
+                            <p>Location: {$teamRow['Continent']}</p>
+                    </div>";
+            }
 
         echo "</dialog>";
+        }
+        
 
     } else {
         echo "0 results";
