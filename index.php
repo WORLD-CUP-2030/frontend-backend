@@ -37,7 +37,7 @@ $groupResult = $conn->query($groupQuery);
 
     <!-- Search form -->
     <div class="flex items-center justify-center">
-        <div class="flex items-center justify-between border-solid border-2 border-green-600 border-opacity-50 p-1 px-2 rounded-3xl">
+        <div class="flex items-center justify-between border-solid border-2 border-green-600 border-opacity-50 p-1 px-2 rounded-3xl my-2">
             <input class="placeholder:text-white text-gray-800 text-sm focus:outline-none w-40 h-3 pr-10" type="text" placeholder="Search" />
             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none" class="ml-2">
                 <g clip-path="url(#clip0_1215_2490)">
