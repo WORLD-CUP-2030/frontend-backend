@@ -12,8 +12,10 @@ if ($conn->connect_error) {
 }
 
 // Query to get teams data
-$teamQuery = "SELECT Name, GROUP_CONCAT(Country) AS Countries, Continent FROM team GROUP BY Name";
-$teamResult = $conn->query($teamQuery);
+$teamQuery = "SELECT Name, GROUP_CONCAT(Country) AS Countries, Continent, drapeau FROM team GROUP BY Name ";
+$teamResult = $conn->query($teamQuery); 
+;
+
 
 // Query to get group and corresponding stadium data
 $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
@@ -35,8 +37,27 @@ $groupResult = $conn->query($groupQuery);
 <body>
     <div class='flex justify-center items-center mb-10 -ml-20 '>
         <img src="cup.png" alt="" class='h-[40vh] w-72 -mr-20'>
-        <h2 class='text-center text-red-500 font-bold text-3xl'>FIFA WORLD CUP Morocco 2030</h2>
+        <h2 class='text-center text-red-500 font-bold text-3xl'>FIFA WORLD CUP MOROCCO 2030</h2>
         <img src="mor.png" alt="" class='h-28 w-28 rounded-full ml-4'>
+    <!-- <form method="GET" action=""> -->
+    <div class="flex items-center justify-center">
+    <div class="flex items-center justify-between border-solid border-2 border-green-600 border-opacity-50 p-1 px-2 rounded-3xl">
+        <input class=" placeholder:text-white text-gray-800 text-sm focus:outline-none w-40 h-3 pr-10" type="text" placeholder="Search" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25" fill="none" class="ml-2">
+            <g clip-path="url(#clip0_1215_2490)">
+                <path d="M17.35 21.5L11.05 15.2C10.55 15.6 9.975 15.9167 9.325 16.15C8.675 16.3833 7.98333 16.5 7.25 16.5C5.43333 16.5 3.896 15.8707 2.638 14.612C1.38 13.3533 0.750667 11.816 0.75 10C0.75 8.18333 1.37933 6.646 2.638 5.388C3.89667 4.13 5.434 3.50067 7.25 3.5C9.06667 3.5 10.604 4.12933 11.862 5.388C13.12 6.64667 13.7493 8.184 13.75 10C13.75 10.7333 13.6333 11.425 13.4 12.075C13.1667 12.725 12.85 13.3 12.45 13.8L18.75 20.1L17.35 21.5ZM7.25 14.5C8.5 14.5 9.56267 14.0623 10.438 13.187C11.3133 12.3117 11.7507 11.2493 11.75 10C11.75 8.75 11.3123 7.68733 10.437 6.812C9.56167 5.93667 8.49933 5.49933 7.25 5.5C6 5.5 4.93733 5.93767 4.062 6.813C3.18667 7.68833 2.74933 8.75067 2.75 10C2.75 11.25 3.18767 12.3127 4.063 13.188C4.93833 14.0633 6.00067 14.5007 7.25 14.5Z" fill="white"/>
+            </g>
+            <defs>
+                <clipPath id="clip0_1215_2490">
+                    <rect width="24" height="24" fill="white" transform="translate(0.75 0.5)"/>
+                </clipPath>
+            </defs>
+        </svg>
+    </div>
+</div>
+
+
+    <!-- </form> -->
     </div>
 
     <?php
@@ -49,17 +70,22 @@ $groupResult = $conn->query($groupQuery);
             echo "
             <div class='flex flex-col max-w-2xl border p-4'>
                 <button class='border h-8 bg-green-600 pl-5 font-bold text-white text-sm text-start' onclick=\"window.dialog.showModal();\">Group " . $teamRow["Name"] . ":</button>
+        
                 
                 <div class='flex flex-row gap-2 flex-wrap'>";
                 foreach ($countriesArray as $country) {
-                    echo "<button onclick=\"window.dialog.showModal();\" class='bg-gray-200 px-5 py-2 rounded my-0.5 text-start w-full max-w-2xl'>" . trim($country) . "</button>";
+                    echo "<button onclick=\"window.dialog.showModal();\" class='flex items-center bg-gray-200 px-5 py-2 rounded my-0.5 text-start w-full max-w-2xl'>
+                        <img src='" . $teamRow["drapeau"] . "' alt='' class='w-10 h-10 mr-2'>" . trim($country) . "
+                    </button>";
                 }
+                
 
                 // Fetch and display the corresponding stadium names
                 if ($groupRow = $groupResult->fetch_assoc()) {
-                    echo "<p class='text-sm mt-2'> " . $groupRow["StadiumNames"] . "</p>";
+                    echo "<p class='text-sm mt-2 font-semibold font-italic'> " . $groupRow["StadiumNames"] . "</p> " ;
                 } else {
-                    echo "<p class='text-sm mt-2'>No stadium data available for this group.</p>";
+                    echo "<p class='text-sm mt-2'>No stadium data available for this group.</p>
+                    ";
                 }
 
             echo "
@@ -67,28 +93,29 @@ $groupResult = $conn->query($groupQuery);
             </div>";
         }
         echo "</div>";
+        echo "
+<dialog id='dialog' class='p-4 md:p-8 bg-white max-w-40vw pt-8 rounded-2xl border-0 shadow-md'>
+    <button onclick=\"window.dialog.close();\" aria-label=\"close\" class='filter-grayscale border-none bg-none absolute top-5 right-5 transition-transform transition-filter ease duration-300 cursor-pointer transform-origin-center hover:filter-grayscale-0 hover:transform-scale-110'>❌</button>
+    <h2>team infromation </h2>";
+
+if ($teamRow !== null) {
+    echo "
+        <div>
+            <h3>{$teamRow['Capital']}</h3>
+            <p>Location: {$teamRow['Continent']}</p>
+        </div>";
+} else {
+    echo "<p>No team data available.</p>";
+}
+
+echo "</dialog>";
+
+        
     } else {
         echo "0 results";
     }
-
-    echo "
-    <dialog id='dialog' class='p-4 md:p-8 bg-white max-w-40vw pt-8 rounded-2xl border-0 shadow-md'>
-        <button onclick=\"window.dialog.close();\" aria-label=\"close\" class='filter-grayscale border-none bg-none absolute top-5 right-5 transition-transform transition-filter ease duration-300 cursor-pointer transform-origin-center hover:filter-grayscale-0 hover:transform-scale-110'>❌</button>
-        <h2>Stadium Information</h2>";
-
-    if ($results->num_rows > 0) {
-        while ($row = $results->fetch_assoc()) {
-            echo "
-            <div>
-                <h3>{$row['Capital']}</h3>
-                <p>Location: {$row['Continent']}</p>
-            </div>";
-        }
-    } else {
-        echo "<p>No stadium data available.</p>";
-    }
-
-    echo "</dialog>";
+   
+   
 
     $conn->close();
     ?>
