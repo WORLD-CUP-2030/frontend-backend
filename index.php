@@ -10,13 +10,15 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-$searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
-// Query to get group and corresponding stadium data
+$searchTerm = isset($_POST['search']) ? trim($_POST['search']) : '';
+// Query to POST group and corresponding stadium data
 $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
                 FROM groups
                 LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
+                WHERE groups.Name LIKE '%$searchTerm%'
                 GROUP BY groups.Name";
 $groupResult = $conn->query($groupQuery);
+
 
 ?>
 
@@ -38,7 +40,7 @@ $groupResult = $conn->query($groupQuery);
     </div>
 
     <!-- Search form -->
-    <form method="GET" action="">
+    <form method="POST" action="">
 
         <div class="flex items-center justify-center">
             <div
@@ -110,10 +112,11 @@ $groupResult = $conn->query($groupQuery);
         while ($teamRow = $teamResult->fetch_assoc()) {
                
                 $country = trim($teamRow["Country"]);
-                $highlightClass = (strcasecmp($country, $searchTerm) === 0) ? 'bg-yellow-300' : ''; 
+                // $highlightClass = (strcasecmp($country, $searchTerm) === 0) ? 'bg-yellow-300' : ''; 
                 echo "<div>
-                            <h3>{$teamRow['Capital']}</h3>
                             <p>Location: {$teamRow['Continent']}</p>
+                            <h3>{$teamRow['Capital']}</h3>
+
                     </div>";
             }
 
