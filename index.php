@@ -64,20 +64,28 @@ if (isset($_GET['action'])) {
 
 } else {
     // Query to POST group and corresponding stadium data
-    if ($searchTerm !== '') {
-        // If there is a search term, use it in the query
-        $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
-                    FROM groups
-                    LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
-                    WHERE groups.Name LIKE '%$searchTerm%'
-                    GROUP BY groups.Name";
-    } else {
-        // If there is no search term, show all groups
-        $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
-                    FROM groups
-                    LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
-                    GROUP BY groups.Name";
-    }
+   // Change the condition from $_GET to $_POST
+if (isset($_POST['search'])) {
+    $searchTerm = $_POST['search'];
+}
+
+// Query to POST group and corresponding stadium data
+if ($searchTerm !== '') {
+    // If there is a search term, use it in the query
+    $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
+                   FROM groups
+                   LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
+                   WHERE groups.Name LIKE '%$searchTerm%'
+                   GROUP BY groups.Name";
+} else {
+    // If there is no search term, show all groups
+    $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
+                   FROM groups
+                   LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
+                   GROUP BY groups.Name";
+}
+
+
 
     $groupResult = $conn->query($groupQuery);
     ?>
@@ -120,6 +128,10 @@ if (isset($_GET['action'])) {
         </div>
     </form>
     <?php
+    if (isset($_POST['search'])) {
+        $searchTerm = $_POST['search'];
+    }
+    
         $groupsName = [];
         $countGroupe = 0;
         if ($groupResult->num_rows > 0) {
