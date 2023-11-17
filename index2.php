@@ -47,7 +47,7 @@ if (isset($_GET['action'])) {
                     <label for='country'>Country:</label>
                     <input type='text' name='update_country' value='{$teamToUpdate['Country']}'><br>
                     <label for='continent'>Continent:</label>
-                    <input type='text' name='update_continent' value='{$teamToUpdate['Continent']}'><br>
+                    <input type='text' class='text-red-600' name='update_continent' value='{$teamToUpdate['Continent']}'><br>
                     <label for='capital'>Capital:</label>
                     <input type='text' name='update_capital' value='{$teamToUpdate['Capital']}'><br>
                     <label for='main_player'>Main Player:</label>
