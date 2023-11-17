@@ -1,4 +1,7 @@
 <?php
+// Start or resume a session
+session_start();
+
 // Database connection
 $servername = "localhost";
 $username = "root";
@@ -10,17 +13,40 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-$searchTerm = isset($_POST['search']) ? trim($_POST['search']) : '';
+
+// Initialize $searchTerm
+$searchTerm = '';
+
+// Check if the form is submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // If submitted, update the session variable and the local variable with the search term
+    $searchTerm = isset($_POST['search']) ? trim($_POST['search']) : '';
+    $_SESSION['searchTerm'] = $searchTerm;
+} else {
+    // If not submitted, use the session variable if it exists, otherwise set it to an empty string
+    $searchTerm = isset($_SESSION['searchTerm']) ? $_SESSION['searchTerm'] : '';
+}
+
 // Query to POST group and corresponding stadium data
-$groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
-                FROM groups
-                LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
-                WHERE groups.Name LIKE '%$searchTerm%'
-                GROUP BY groups.Name";
+if ($searchTerm !== '') {
+    // If there is a search term, use it in the query
+    $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
+                    FROM groups
+                    LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
+                    WHERE groups.Name LIKE '%$searchTerm%'
+                    GROUP BY groups.Name";
+} else {
+    // If there is no search term, retrieve all groups
+    $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
+                    FROM groups
+                    LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
+                    GROUP BY groups.Name";
+}
+
 $groupResult = $conn->query($groupQuery);
-
-
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -85,9 +111,9 @@ $groupResult = $conn->query($groupQuery);
 
             while ($teamRow = $teamResult->fetch_assoc()) {
                 $country = trim($teamRow["Country"]);
-                $highlightClass = (strcasecmp($country, $searchTerm) === 0) ? 'bg-yellow-300' : ''; 
+                // $highlightClass = (strcasecmp($country, $searchTerm) === 0) ? 'bg-yellow-300' : ''; 
 
-                echo "<button onclick=\"window.dialog.showModal();\" class='flex items-center {$highlightClass} bg-gray-200 px-5 py-2 rounded my-0.5 text-start w-full max-w-2xl'>
+                echo "<button onclick=\"window.dialog.showModal();\" class='flex items-center  bg-gray-200 px-5 py-2 rounded my-0.5 text-start w-full max-w-2xl'>
                     <img src='" . $teamRow["drapeau"] . "' alt='' class='w-10 h-10 mr-2'>" . $country . "
                 </button>";
             }
