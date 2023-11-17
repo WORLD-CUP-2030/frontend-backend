@@ -161,8 +161,8 @@ if (isset($_GET['action'])) {
                         <th class='border px-4 py-2'>Country</th>
                         <th class='border px-4 py-2'>Continent</th>
                         <th class='border px-4 py-2'>Capital</th>
-                        <th class='border px-4 py-2'>Main Player</th>
-                        <th class='border px-4 py-2   ' >Update</th>
+                        <th class='border px-4 py-2'>Player</th>
+                        <th class='border px-4 py-2 ' >Update</th>
                         <th class='border px-4 py-2'>Delete</th>
                     </tr>
                 </thead>
@@ -173,10 +173,13 @@ if (isset($_GET['action'])) {
 
                 while ($teamRow = $teamResult->fetch_assoc()) {
                     echo "<tr>
-                        <td class='border px-4 py-2'><img src='{$teamRow['drapeau']}' alt='Country Flag'></td>
+                        <td class='border px-4 py-2'><img src='{$teamRow['drapeau']}' class='w-14 h-14' alt='Country Flag'></td>
                         <td class='border px-4 py-2'>{$teamRow['Continent']}</td>
                         <td class='border px-4 py-2'>{$teamRow['Capital']}</td>
-                        <td class='border px-4 py-4'>player</td>
+                        <td class='border px-4 py-4'>
+                        <img src='" . $teamRow["player"] . "' alt='' class='w-12 h-12 mr-2 rounded-full'>
+                    </td>
+                    
                         <td class='border px-4 py-4'>
                             <a href='./index2.php?action=update&teamId={$teamRow['TeamID']}'>Update</a>
                         </td>
