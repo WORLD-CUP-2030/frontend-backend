@@ -47,10 +47,9 @@ if (isset($_GET['action'])) {
                     <label for='country'>Country:</label>
                     <input type='text' name='update_country' value='{$teamToUpdate['Country']}'><br>
                     <label for='continent'>Continent:</label>
-                    <input type='text' class='text-red-600' name='update_continent' value='{$teamToUpdate['Continent']}'><br>
+                    <input type='text' name='update_continent' value='{$teamToUpdate['Continent']}'><br>
                     <label for='capital'>Capital:</label>
                     <input type='text' name='update_capital' value='{$teamToUpdate['Capital']}'><br>
-                    <label for='main_player'>Main Player:</label>
                     <button type='submit' name='submit_update'>Submit Update</button>
                   </form>";
         }
@@ -64,20 +63,28 @@ if (isset($_GET['action'])) {
 
 } else {
     // Query to POST group and corresponding stadium data
-    if ($searchTerm !== '') {
-        // If there is a search term, use it in the query
-        $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
-                    FROM groups
-                    LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
-                    WHERE groups.Name LIKE '%$searchTerm%'
-                    GROUP BY groups.Name";
-    } else {
-        // If there is no search term, show all groups
-        $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
-                    FROM groups
-                    LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
-                    GROUP BY groups.Name";
-    }
+   // Change the condition from $_GET to $_POST
+if (isset($_POST['search'])) {
+    $searchTerm = $_POST['search'];
+}
+
+// Query to POST group and corresponding stadium data
+if ($searchTerm !== '') {
+    // If there is a search term, use it in the query
+    $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
+                   FROM groups
+                   LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
+                   WHERE groups.Name LIKE '%$searchTerm%'
+                   GROUP BY groups.Name";
+} else {
+    // If there is no search term, show all groups
+    $groupQuery = "SELECT groups.Name AS GroupName, groups.StadiumName, GROUP_CONCAT(stadium.StadiumName) AS StadiumNames
+                   FROM groups
+                   LEFT JOIN stadium ON groups.StadiumName = stadium.StadiumName
+                   GROUP BY groups.Name";
+}
+
+
 
     $groupResult = $conn->query($groupQuery);
     ?>
@@ -120,6 +127,10 @@ if (isset($_GET['action'])) {
         </div>
     </form>
     <?php
+    if (isset($_POST['search'])) {
+        $searchTerm = $_POST['search'];
+    }
+    
         $groupsName = [];
         $countGroupe = 0;
         if ($groupResult->num_rows > 0) {
@@ -161,8 +172,8 @@ if (isset($_GET['action'])) {
                         <th class='border px-4 py-2'>Country</th>
                         <th class='border px-4 py-2'>Continent</th>
                         <th class='border px-4 py-2'>Capital</th>
-                        <th class='border px-4 py-2'>Main Player</th>
-                        <th class='border px-4 py-2   ' >Update</th>
+                        <th class='border px-4 py-2'>Player</th>
+                        <th class='border px-4 py-2 ' >Update</th>
                         <th class='border px-4 py-2'>Delete</th>
                     </tr>
                 </thead>
@@ -173,10 +184,13 @@ if (isset($_GET['action'])) {
 
                 while ($teamRow = $teamResult->fetch_assoc()) {
                     echo "<tr>
-                        <td class='border px-4 py-2'><img src='{$teamRow['drapeau']}' alt='Country Flag'></td>
+                        <td class='border px-4 py-2'><img src='{$teamRow['drapeau']}' class='w-14 h-14' alt='Country Flag'></td>
                         <td class='border px-4 py-2'>{$teamRow['Continent']}</td>
                         <td class='border px-4 py-2'>{$teamRow['Capital']}</td>
-                        <td class='border px-4 py-4'>player</td>
+                        <td class='border px-4 py-4'>
+                        <img src='" . $teamRow["player"] . "' alt='' class='w-12 h-12 mr-2 rounded-full'>
+                    </td>
+                    
                         <td class='border px-4 py-4'>
                             <a href='./index2.php?action=update&teamId={$teamRow['TeamID']}'>Update</a>
                         </td>

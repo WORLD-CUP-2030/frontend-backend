@@ -50,7 +50,6 @@ if (isset($_GET['action'])) {
                     <input type='text' name='update_continent' value='{$teamToUpdate['Continent']}'><br>
                     <label for='capital'>Capital:</label>
                     <input type='text' name='update_capital' value='{$teamToUpdate['Capital']}'><br>
-                    <label for='main_player'>Main Player:</label>
                     <button type='submit' name='submit_update'>Submit Update</button>
                   </form>";
         }
