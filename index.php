@@ -95,72 +95,85 @@ $groupResult = $conn->query($groupQuery);
     $groupsName=[];
     $countGroupe=0;
     if ($groupResult->num_rows > 0) {
-        // Output data for each grp
+        // Output data for each group
         echo "<div class='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10'>";
+        $countGroupe = 0;
+    
         while ($groupRow = $groupResult->fetch_assoc()) {
-            array_push($groupsName,$groupRow["GroupName"]);
+            array_push($groupsName, $groupRow["GroupName"]);
             echo "
             <div class='flex flex-col max-w-2xl border p-4'>
-                <button class='border h-8 bg-green-600 pl-5 font-bold text-white text-sm text-start' onclick=\"window.dialog".$countGroupe.".showModal();\">Group " . $groupRow["GroupName"] . ":</button>
+                <button class='border h-8 bg-green-600 pl-5 font-bold text-white text-sm text-start' onclick=\"window.dialog{$countGroupe}.showModal();\">Group {$groupRow["GroupName"]}:</button>
                 <div class='flex flex-row gap-2 flex-wrap'>";
-                $countGroupe++;
-
+            $countGroupe++;
+    
             // Query to get teams for the current group
             $teamQuery = "SELECT Name, Country, drapeau FROM team WHERE Name = '" . $groupRow["GroupName"] . "'";
             $teamResult = $conn->query($teamQuery);
-
+    
             while ($teamRow = $teamResult->fetch_assoc()) {
                 $country = trim($teamRow["Country"]);
-                // $highlightClass = (strcasecmp($country, $searchTerm) === 0) ? 'bg-yellow-300' : ''; 
-
+    
                 echo "<button onclick=\"window.dialog.showModal();\" class='flex items-center  bg-gray-200 px-5 py-2 rounded my-0.5 text-start w-full max-w-2xl'>
                     <img src='" . $teamRow["drapeau"] . "' alt='' class='w-10 h-10 mr-2'>" . $country . "
                 </button>";
             }
-
+    
             // Display the corresponding stadium names
             echo "<p class='text-sm mt-2 font-semibold font-italic'> " . $groupRow["StadiumNames"] . "</p> ";
-
+    
             echo "
                 </div>
             </div>";
         }
-        // echo "</div>";
-        for ($i=0; $i < 8; $i++) { 
-            echo "
-    <dialog id='dialog".$i."' class='p-4 md:p-8 bg-white max-w-40vw pt-8 rounded-2xl border-0 shadow-md'>
-        <button onclick=\"window.dialog".$i."'.close();\" aria-label=\"close\" class='filter-grayscale border-none bg-none absolute top-5 right-5 transition-transform transition-filter ease duration-300 cursor-pointer transform-origin-center hover:filter-grayscale-0 hover:transform-scale-110'>❌</button>
-        <h2>TEAM Information</h2>";
-            
-        $teamQuery = "SELECT * FROM team WHERE Name = '" . $groupsName[$i] . "'";
-        $teamResult = $conn->query($teamQuery);
-        
-        while ($teamRow = $teamResult->fetch_assoc()) {
-               
-                $country = trim($teamRow["Country"]);
-                // $highlightClass = (strcasecmp($country, $searchTerm) === 0) ? 'bg-yellow-300' : ''; 
-                echo "<div>
-                            <p>Location: {$teamRow['Continent']}</p>
-                            <h3>{$teamRow['Capital']}</h3>
+    
+        // Output dialog for each group
+        for ($i = 0; $i < count($groupsName); $i++) {
+            echo "<dialog id='dialog{$i}' class='p-4 md:p-8 bg-white max-w-40vw pt-8 rounded-2xl border-0 shadow-md'>
+                    <button onclick=\"window.dialog{$i}.close();\" aria-label=\"close\" class='filter-grayscale border-none bg-none absolute top-5 right-5 transition-transform transition-filter ease duration-300 cursor-pointer transform-origin-center hover:filter-grayscale-0 hover:transform-scale-110'>❌</button>
+                    <h2>TEAM Information</h2>
+                    <table class='table-auto w-full'>
+                        <thead>
+                            <tr>
+                            <th class='border px-4 py-2'>Country</th>
+                            <th class='border px-4 py-2'>Continent</th>
+                                <th class='border px-4 py-2'>Capital</th>
+                                <th class='border px-4 py-2'>Main Player</th>
 
-                    </div>";
+                                
+                            </tr>
+                        </thead>
+                        <tbody>";
+    
+            $teamQuery = "SELECT * FROM team WHERE Name = '" . $groupsName[$i] . "'";
+            $teamResult = $conn->query($teamQuery);
+    
+            while ($teamRow = $teamResult->fetch_assoc()) {
+                echo "<tr>
+                <td class='border px-4 py-2'><img src='{$teamRow['drapeau']}' alt='Country Flag'></td>
+
+                        <td class='border px-4 py-2'>{$teamRow['Continent']}</td>
+                        <td class='border px-4 py-2'>{$teamRow['Capital']}</td>
+                    </tr>";
             }
-
-        echo "</dialog>";
+    
+            echo "</tbody></table></dialog>";
         }
-        
-
+    
+        echo "</div>";
     } else {
         echo "0 results";
     }
-
-
-
-
-
-
+    
     $conn->close();
     ?>
+
+
+
+
+
+
+
 
 </body>
 
