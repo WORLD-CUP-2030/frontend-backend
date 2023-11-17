@@ -22,6 +22,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // If submitted, update the session variable and the local variable with the search term
     $searchTerm = isset($_POST['search']) ? trim($_POST['search']) : '';
     $_SESSION['searchTerm'] = $searchTerm;
+
+    // Check if the delete button is clicked
+    if (isset($_POST['delete_team'])) {
+        $countryIDToDelete = $_POST['country_id'];
+        $sqlDelete = "DELETE FROM team WHERE TeamID = '$countryIDToDelete'";
+        $resDelete = mysqli_query($conn, $sqlDelete);
+
+        if ($resDelete) {
+            echo "Team information deleted successfully!";
+        } else {
+            echo "Error deleting team information: " . mysqli_error($conn);
+        }
+    }
 } else {
     // If not submitted, use the session variable if it exists, otherwise set it to an empty string
     $searchTerm = isset($_SESSION['searchTerm']) ? $_SESSION['searchTerm'] : '';
@@ -45,6 +58,10 @@ if ($searchTerm !== '') {
 
 $groupResult = $conn->query($groupQuery);
 ?>
+
+<!-- The rest of your HTML code remains unchanged -->
+
+
 
 
 
@@ -127,38 +144,48 @@ $groupResult = $conn->query($groupQuery);
             </div>";
         }
     
-        // Output dialog for each group
-        for ($i = 0; $i < count($groupsName); $i++) {
-            echo "<dialog id='dialog{$i}' class='p-4 md:p-8 bg-white max-w-40vw pt-8 rounded-2xl border-0 shadow-md'>
-                    <button onclick=\"window.dialog{$i}.close();\" aria-label=\"close\" class='filter-grayscale border-none bg-none absolute top-5 right-5 transition-transform transition-filter ease duration-300 cursor-pointer transform-origin-center hover:filter-grayscale-0 hover:transform-scale-110'>❌</button>
-                    <h2>TEAM Information</h2>
-                    <table class='table-auto w-full'>
-                        <thead>
-                            <tr>
-                            <th class='border px-4 py-2'>Country</th>
-                            <th class='border px-4 py-2'>Continent</th>
-                                <th class='border px-4 py-2'>Capital</th>
-                                <th class='border px-4 py-2'>Main Player</th>
+      
+for ($i = 0; $i < count($groupsName); $i++) {
+    echo "<dialog id='dialog{$i}' class='p-4 md:p-8 bg-white max-w-70vw pt-8 rounded-2xl border-0 shadow-md'>
+            <button onclick=\"window.dialog{$i}.close();\" aria-label=\"close\" class='filter-grayscale border-none bg-none absolute top-5 right-5 transition-transform transition-filter ease duration-300 cursor-pointer transform-origin-center hover:filter-grayscale-0 hover:transform-scale-110'>❌</button>
+            <h2>TEAM Information</h2>
+            <table class='table-auto w-full'>
+                <thead>
+                    <tr>
+                        <th class='border px-4 py-2'>Country</th>
+                        <th class='border px-4 py-2'>Continent</th>
+                        <th class='border px-4 py-2'>Capital</th>
+                        <th class='border px-4 py-2'>Main Player</th>
+                        <th class='border px-4 py-2'>Update</th>
+                        <th class='border px-4 py-2'>Delete</th>
+                    </tr>
+                </thead>
+                <tbody>";
 
-                                
-                            </tr>
-                        </thead>
-                        <tbody>";
-    
-            $teamQuery = "SELECT * FROM team WHERE Name = '" . $groupsName[$i] . "'";
-            $teamResult = $conn->query($teamQuery);
-    
-            while ($teamRow = $teamResult->fetch_assoc()) {
-                echo "<tr>
+    $teamQuery = "SELECT * FROM team WHERE Name = '" . $groupsName[$i] . "'";
+    $teamResult = $conn->query($teamQuery);
+
+    while ($teamRow = $teamResult->fetch_assoc()) {
+        echo "<tr>
                 <td class='border px-4 py-2'><img src='{$teamRow['drapeau']}' alt='Country Flag'></td>
+                <td class='border px-4 py-2'>{$teamRow['Continent']}</td>
+                <td class='border px-4 py-2'>{$teamRow['Capital']}</td>
+                <td class='border px-4 py-4'>w</td>
+                <td class='border px-4 py-4'>
+                    <button type='submit' class='btn btn-primary' name='update'>Update</button>
+                </td>
+                <td class='border px-4 py-4'>
+                    <form method='POST' action='{$_SERVER["PHP_SELF"]}'>
+                        <input type='hidden' name='country_id' value='{$teamRow['TeamID']}'>
+                        <button type='submit' class='btn btn-primary' name='delete_team'>Delete</button>
+                    </form>
+                </td>
+            </tr>";
+    }
 
-                        <td class='border px-4 py-2'>{$teamRow['Continent']}</td>
-                        <td class='border px-4 py-2'>{$teamRow['Capital']}</td>
-                    </tr>";
-            }
-    
-            echo "</tbody></table></dialog>";
-        }
+    echo "</tbody></table></dialog>";
+}
+
     
         echo "</div>";
     } else {
